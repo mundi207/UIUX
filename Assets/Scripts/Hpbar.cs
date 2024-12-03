@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.UI;
+using static GameManager;
 
 public class Hpbar : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class Hpbar : MonoBehaviour
 
     private RectTransform hpbarPos;
 
-    private int MaxHp, CurHp;
+    public GameObject P1, P2;
 
     private void Awake()
     {
@@ -26,9 +27,23 @@ public class Hpbar : MonoBehaviour
     }
     private void Start()
     {
-        MaxHp = 100;
-        CurHp = 100;
-        hpbar.value = CurHp / MaxHp;
+        P1.SetActive(false);
+        P2.SetActive(false);
+
+        if(Time.timeScale == 0)
+            Time.timeScale = 1;
+
+        Instance.MaxHp = 100;
+        Instance.CurHp = 100;
+        hpbar.value = Instance.CurHp / Instance.MaxHp;
+    }
+    private void Update()
+    {
+        if(hpbar.value == 0)
+        {
+            //Instance.P1.SetActive(true);
+            Time.timeScale = 0;
+        }
     }
     private void FixedUpdate()
     {
@@ -38,8 +53,30 @@ public class Hpbar : MonoBehaviour
     {
         if(collision.gameObject.CompareTag("Bullet"))
         {
-            CurHp -= 10;
-            hpbar.value = Mathf.Lerp(hpbar.value, (float)CurHp / (float)MaxHp, Time.deltaTime * 10);
+            Instance.CurHp -= 50;
+            hpbar.value = Mathf.Lerp(hpbar.value,(float)Instance.CurHp / (float)Instance.MaxHp,Time.deltaTime * 10);
+        }
+        if(hpbar.value == 0)
+        {
+            P1.SetActive(true);
+            Time.timeScale = 0;
+        }
+    }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Item"))
+        {
+            Instance.CurHp += 25;
+            hpbar.value = Mathf.Lerp(hpbar.value,(float)Instance.CurHp / (float)Instance.MaxHp,Time.deltaTime * 10);
+        }
+        if(hpbar.value == 0)
+        {
+            P1.SetActive(true);
+            Time.timeScale = 0;
+        }
+        else if(collision.gameObject.CompareTag("D2"))
+        {
+            P2.SetActive(true);
         }
     }
 }
